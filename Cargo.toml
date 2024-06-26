@@ -1,0 +1,12 @@
+[package]
+name = "sgrep"
+description = "A simple grep util for those lazy to remember many command line options"
+version = "0.1.0"
+edition = "2021"
+authors = ["Thiago Massari Guedes"]
+
+[dependencies]
+atty = "0.2.14"
+clap = { version = "4.5.7", features = ["derive", "string"] }
+anyhow = "1.0.86"
+colored = "2.1.0"
