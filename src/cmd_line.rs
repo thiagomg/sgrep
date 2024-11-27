@@ -24,6 +24,10 @@ pub struct Args {
     #[arg(long, default_value = ".")]
     pub root: PathBuf,
 
+    /// Show top n lines
+    #[arg(short = 't', long)]
+    pub show_top: Option<usize>,
+
     /// Patterns to filter lines in a buffer
     #[arg(short, long, required = true)]
     pub pattern: Vec<String>,
@@ -34,4 +38,8 @@ pub struct Args {
 
     /// Optionally list of files. Otherwise, all files will be searched
     pub files: Option<Vec<PathBuf>>,
+    
+    /// Show raw outputs (without colour, headers or line numbers)
+    #[arg(long, default_value_t=false)]
+    pub raw: bool,
 }

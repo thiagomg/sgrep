@@ -13,18 +13,14 @@ pub fn list_files_internal(res: &mut Vec<PathBuf>, path: &PathBuf, file_filter: 
     let entries = fs::read_dir(path)
         .context(format!("Could not list files from [{}]", path.to_str().unwrap()))?;
 
-    for entry in entries {
-        if let Ok(path) = entry {
-            if let Ok(file_type) = path.file_type() {
-                if file_type.is_dir() {
-                    if recurse {
-                        list_files_internal(res, &path.path(), file_filter, recurse)?;
-                    }
-                } else {
-                    if is_path_valid(file_filter, &path) {
-                        res.push(path.path());
-                    }
+    for path in entries.flatten() {
+        if let Ok(file_type) = path.file_type() {
+            if file_type.is_dir() {
+                if recurse {
+                    list_files_internal(res, &path.path(), file_filter, recurse)?;
                 }
+            } else if is_path_valid(file_filter, &path) {
+                res.push(path.path());
             }
         }
     }
@@ -54,7 +50,7 @@ fn is_path_valid(file_filter: &FileNameFilter, path: &DirEntry) -> bool {
             }
         }
     }
-    return false;
+    false
 }
 
 pub fn list_files(path: &PathBuf, file_filter: &FileNameFilter, recurse: bool) -> anyhow::Result<Vec<PathBuf>> {

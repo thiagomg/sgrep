@@ -1,0 +1,3 @@
+0.2.0
+* --raw : implemented to show without colours, line number or header
+* --show-top : show top n lines

@@ -20,6 +20,8 @@ struct Options {
     content_filters: ContentFilter,
     file_filter: FileNameFilter,
     file_list: Option<Vec<PathBuf>>,
+    show_top_lines: usize,
+    raw_output: bool,
 }
 
 fn run_files(options: &Options) -> Result<()> {
@@ -32,10 +34,10 @@ fn run_files(options: &Options) -> Result<()> {
     };
 
     for path in paths.iter() {
-        let file = File::open(path).expect(format!("Error opening {:?}", path).as_str());
+        let file = File::open(path).unwrap_or_else(|_| panic!("Error opening {:?}", path));
         let reader = BufReader::new(file);
         let file_path = path.to_str().unwrap().to_string();
-        filter_stream(reader, &options.content_filters, Some(&file_path))?;
+        filter_stream(reader, &options.content_filters, Some(&file_path), options.show_top_lines, options.raw_output)?;
     }
 
     Ok(())
@@ -44,7 +46,7 @@ fn run_files(options: &Options) -> Result<()> {
 fn run_stdin(options: &Options) -> Result<()> {
     let stdin = std::io::stdin();
     let reader = BufReader::new(stdin);
-    filter_stream(reader, &options.content_filters, None)?;
+    filter_stream(reader, &options.content_filters, None, options.show_top_lines, options.raw_output)?;
     Ok(())
 }
 
@@ -57,12 +59,10 @@ fn args_to_option(is_stdin: bool, args: Args) -> Options {
 
     let file_filter = if is_stdin {
         FileNameFilter::None
+    } else if let Some(file_pattern) = args.file_pattern {
+        FileNameFilter::CaseInsensitive(file_pattern)
     } else {
-        if let Some(file_pattern) = args.file_pattern {
-            FileNameFilter::CaseInsensitive(file_pattern)
-        } else {
-            FileNameFilter::CaseInsensitive(vec!["".to_string()])
-        }
+        FileNameFilter::CaseInsensitive(vec!["".to_string()])
     };
 
     Options {
@@ -71,6 +71,8 @@ fn args_to_option(is_stdin: bool, args: Args) -> Options {
         content_filters,
         file_filter,
         file_list: args.files,
+        show_top_lines: args.show_top.unwrap_or(0),
+        raw_output: args.raw,
     }
 }
 
