@@ -34,7 +34,15 @@ fn run_files(options: &Options) -> Result<()> {
     };
 
     for path in paths.iter() {
-        let file = File::open(path).unwrap_or_else(|_| panic!("Error opening {:?}", path));
+        let file = match File::open(path) {
+            Ok(file) => file,
+            Err(_) => {
+                // If the file does not exist, just continue.
+                // For patterns, such as *.rs, when no file is found, bash does not expand and
+                // passes *.rs instead
+                continue
+            },
+        };
         let reader = BufReader::new(file);
         let file_path = path.to_str().unwrap().to_string();
         filter_stream(reader, &options.content_filters, Some(&file_path), options.show_top_lines, options.raw_output)?;

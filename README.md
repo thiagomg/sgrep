@@ -10,4 +10,22 @@ sgrep -p "pub struct" *.rs
 
 # Displays lines containing "#ifdef" or "#ifndef" in all *.c* and *.h* files
 sgrep -p "#ifdef" -p "#ifndef" -f .c -f .h
+
+# Display the top 1 line and filter for bash, case insensitive
+ps -ef | sgrep -t 1 -i -p bash
+```
+
+### Installing
+
+Using brew:
+
+```bash
+brew tap thiagomg/texted
+brew install thiagomg/texted/sgrep
+```
+
+Or using cargo
+
+```bash
+cargo install sgrep
 ```

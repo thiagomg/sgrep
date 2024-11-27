@@ -1,3 +1,6 @@
 1.0.0
 * --raw : implemented to show without colours, line number or header
 * --show-top : show top n lines
+
+1.0.1
+* BUGFIX: When a pattern is not found and passed as file name, sgrep was showing error
