@@ -21,7 +21,7 @@ Using brew:
 
 ```bash
 brew tap thiagomg/texted
-brew install thiagomg/texted/sgrep
+brew install thiagomg/texted/simplegrep
 ```
 
 Or using cargo
