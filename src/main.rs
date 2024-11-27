@@ -34,6 +34,10 @@ fn run_files(options: &Options) -> Result<()> {
     };
 
     for path in paths.iter() {
+        if !path.is_file() {
+            continue;
+        }
+
         let file = match File::open(path) {
             Ok(file) => file,
             Err(_) => {
@@ -45,7 +49,10 @@ fn run_files(options: &Options) -> Result<()> {
         };
         let reader = BufReader::new(file);
         let file_path = path.to_str().unwrap().to_string();
-        filter_stream(reader, &options.content_filters, Some(&file_path), options.show_top_lines, options.raw_output)?;
+
+        if let Err(e) = filter_stream(reader, &options.content_filters, Some(&file_path), options.show_top_lines, options.raw_output) {
+            eprintln!("Error ({}): {}", path.display(), e);
+        }
     }
 
     Ok(())
