@@ -64,7 +64,7 @@ where R: std::io::Read {
                         }
 
                         let line_num = format!("{}", num);
-                        println!("{}: {}", line_num.blue(), colorize(&line, filters, colored));
+                        println!("{:>4}: {}", line_num.blue(), colorize(&line, filters, colored));
                     }
                 }
             }
