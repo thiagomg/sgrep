@@ -61,7 +61,6 @@ where R: std::io::Read {
                             header = true;
                             if let Some(file_name) = prefix {
                                 println!("{}", file_name.purple());
-                                break;
                             }
                         }
 
