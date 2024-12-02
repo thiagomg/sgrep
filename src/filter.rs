@@ -55,16 +55,19 @@ where R: std::io::Read {
                 if force || line_to_filter.contains(filter) {
                     if raw_output {
                         println!("{}", line);
+                        break;
                     } else {
                         if !header {
                             header = true;
                             if let Some(file_name) = prefix {
                                 println!("{}", file_name.purple());
+                                break;
                             }
                         }
 
                         let line_num = format!("{}", num);
                         println!("{:>4}: {}", line_num.blue(), colorize(&line, filters, colored));
+                        break;
                     }
                 }
             }
