@@ -3,6 +3,7 @@ use std::fs::DirEntry;
 use std::path::PathBuf;
 use anyhow::Context;
 
+#[allow(dead_code)]
 pub enum FileNameFilter {
     None,
     CaseSensitive(Vec<String>),
