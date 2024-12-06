@@ -27,23 +27,34 @@ fn colorize_filter(filters: &[String]) -> Vec<String> {
     colored
 }
 
-pub fn filter_stream<R>(reader: BufReader<R>, content_filters: &ContentFilter, prefix: Option<&String>, show_top_lines: usize, raw_output: bool) -> anyhow::Result<()>
+pub fn filter_stream<R>(reader: BufReader<R>, content_filters: &Option<ContentFilter>, content_exclude: &Option<ContentFilter>, prefix: Option<&String>, show_top_lines: usize, raw_output: bool) -> anyhow::Result<()>
 where R: std::io::Read {
     let content_filters = match content_filters {
-        ContentFilter::CaseSensitive(filters) => ContentFilter::CaseSensitive(filters.clone()),
-        ContentFilter::CaseInsensitive(filters) => {
+        Some(ContentFilter::CaseSensitive(filters)) => Some(ContentFilter::CaseSensitive(filters.clone())),
+        Some(ContentFilter::CaseInsensitive(filters)) => {
             let items: Vec<String> = filters.iter().map(|f| f.to_lowercase()).collect();
-            ContentFilter::CaseInsensitive(items)
+            Some(ContentFilter::CaseInsensitive(items))
         }
+        None => None,
+    };
+
+    let content_exclude = match content_exclude {
+        Some(ContentFilter::CaseSensitive(filters)) => Some(ContentFilter::CaseSensitive(filters.clone())),
+        Some(ContentFilter::CaseInsensitive(filters)) => {
+            let items: Vec<String> = filters.iter().map(|f| f.to_lowercase()).collect();
+            Some(ContentFilter::CaseInsensitive(items))
+        }
+        None => None,
     };
 
     let colored = match &content_filters {
-        ContentFilter::CaseSensitive(filters) => {
+        Some(ContentFilter::CaseSensitive(filters)) => {
             colorize_filter(filters)
         }
-        ContentFilter::CaseInsensitive(filters) => {
+        Some(ContentFilter::CaseInsensitive(filters)) => {
             colorize_filter(filters)
         }
+        None => vec![],
     };
 
     let mut header = false;
@@ -72,18 +83,45 @@ where R: std::io::Read {
             }
         };
 
+        let contains_patt = |line_to_filter: &str, filters: &[String] | {
+            for filter in filters.iter() {
+                if line_to_filter.contains(filter) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
         let mut force = false;
         if num < show_top_lines  {
             force = true;
         }
 
+        let excludes = match &content_exclude {
+            None => false,
+            Some(ContentFilter::CaseSensitive(filters)) => {
+                contains_patt(&line, filters)
+            }
+            Some(ContentFilter::CaseInsensitive(filters)) => {
+                let low_line = line.to_lowercase();
+                contains_patt(&low_line, filters)
+            }
+        };
+
+        if excludes {
+            continue;
+        }
+
         match &content_filters {
-            ContentFilter::CaseSensitive(filters) => {
+            Some(ContentFilter::CaseSensitive(filters)) => {
                 print_matching_lines(&line, filters, &colored, force);
             }
-            ContentFilter::CaseInsensitive(filters) => {
+            Some(ContentFilter::CaseInsensitive(filters)) => {
                 let low_line = line.to_lowercase();
                 print_matching_lines(&low_line, filters, &colored, force);
+            }
+            None => {
+                println!("{}", line);
             }
         };
     }

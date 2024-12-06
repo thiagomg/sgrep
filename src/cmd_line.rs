@@ -32,8 +32,12 @@ pub struct Args {
     pub show_top: Option<usize>,
 
     /// Patterns to filter lines in a buffer
-    #[arg(short, long, required = true)]
-    pub pattern: Vec<String>,
+    #[arg(short, long)]
+    pub pattern: Option<Vec<String>>,
+
+    /// Excludes lines using this pattern in a buffer
+    #[arg(short, long)]
+    pub exclude: Option<Vec<String>>,
 
     /// Patterns to filter files. E.g. .cpp, .h, my_class
     #[arg(short)]

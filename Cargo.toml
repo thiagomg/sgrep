@@ -1,7 +1,7 @@
 [package]
 name = "sgrep"
 description = "A simple grep util for those lazy to remember many command line options"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2021"
 authors = ["Thiago Massari Guedes"]
 license = "Apache-2.0"

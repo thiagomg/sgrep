@@ -2,6 +2,8 @@
 
 A simple grep util for those lazy to remember many command line options
 
+![](res/sgrep-with-header.png)
+
 ## Usage
 
 ```bash

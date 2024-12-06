@@ -1,3 +1,6 @@
+1.0.6
+* --exclude: exclude lines with this pattern
+
 1.0.5
 * BUGFIX: Embarrassing bug where duplicate entries appear when more than one filter is used
 
