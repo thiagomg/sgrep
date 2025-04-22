@@ -23,6 +23,7 @@ struct Options {
     file_list: Option<Vec<PathBuf>>,
     show_top_lines: usize,
     raw_output: bool,
+    debug_output: bool,
 }
 
 fn run_files(options: &Options) -> Result<()> {
@@ -52,7 +53,9 @@ fn run_files(options: &Options) -> Result<()> {
         let file_path = path.to_str().unwrap().to_string();
 
         if let Err(e) = filter_stream(reader, &options.content_filters, &options.content_exclude, Some(&file_path), options.show_top_lines, options.raw_output) {
-            eprintln!("Error ({}): {}", path.display(), e);
+            if options.debug_output {
+                eprintln!("Error ({}): {}", path.display(), e);
+            }
         }
     }
 
@@ -98,6 +101,7 @@ fn args_to_option(is_stdin: bool, args: Args) -> Options {
         file_list: args.files,
         show_top_lines: args.show_top.unwrap_or(0),
         raw_output: args.raw,
+        debug_output: false,
     }
 }
 
