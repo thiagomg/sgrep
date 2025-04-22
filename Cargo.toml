@@ -1,8 +1,8 @@
 [package]
 name = "sgrep"
 description = "A simple grep util for those lazy to remember many command line options"
-version = "1.0.6"
-edition = "2021"
+version = "1.0.7"
+edition = "2024"
 authors = ["Thiago Massari Guedes"]
 license = "Apache-2.0"
 homepage = "https://gitlab.com/thiagomg/sgrep"
@@ -10,6 +10,6 @@ repository = "https://gitlab.com/thiagomg/sgrep"
 
 [dependencies]
 atty = "0.2.14"
-clap = { version = "4.5.21", features = ["derive", "string"] }
-anyhow = "1.0.93"
-colored = "2.1.0"
+clap = { version = "4.5.37", features = ["derive", "string"] }
+anyhow = "1.0.98"
+colored = "3.0.0"
