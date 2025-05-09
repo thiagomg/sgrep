@@ -22,6 +22,7 @@ struct Options {
     file_filter: FileNameFilter,
     file_list: Option<Vec<PathBuf>>,
     show_top_lines: usize,
+    show_line_number: bool,
     raw_output: bool,
     debug_output: bool,
 }
@@ -52,7 +53,7 @@ fn run_files(options: &Options) -> Result<()> {
         let reader = BufReader::new(file);
         let file_path = path.to_str().unwrap().to_string();
 
-        if let Err(e) = filter_stream(reader, &options.content_filters, &options.content_exclude, Some(&file_path), options.show_top_lines, options.raw_output) {
+        if let Err(e) = filter_stream(reader, &options.content_filters, &options.content_exclude, Some(&file_path), options.show_top_lines, options.show_line_number, options.raw_output) {
             if options.debug_output {
                 eprintln!("Error ({}): {}", path.display(), e);
             }
@@ -65,12 +66,13 @@ fn run_files(options: &Options) -> Result<()> {
 fn run_stdin(options: &Options) -> Result<()> {
     let stdin = std::io::stdin();
     let reader = BufReader::new(stdin);
-    filter_stream(reader, &options.content_filters, &options.content_exclude, None, options.show_top_lines, options.raw_output)?;
+    filter_stream(reader, &options.content_filters, &options.content_exclude, None, options.show_top_lines, options.show_line_number, options.raw_output)?;
     Ok(())
 }
 
 fn args_to_option(is_stdin: bool, args: Args) -> Options {
     // If not stdin, all files will be used in search
+    let show_line_number: bool = !is_stdin;
 
     let content_filters = match (args.pattern, args.case_insensitive) {
         (Some(patt), true) => Some(ContentFilter::CaseInsensitive(patt)),
@@ -100,22 +102,58 @@ fn args_to_option(is_stdin: bool, args: Args) -> Options {
         file_filter,
         file_list: args.files,
         show_top_lines: args.show_top.unwrap_or(0),
+        show_line_number,
         raw_output: args.raw,
         debug_output: false,
     }
 }
 
-fn main() -> Result<()> {
-    let args = Args::parse();
+fn option_for_single_arg(pattern: String, is_stdin: bool) -> Options {
+    let content_filters = Some(ContentFilter::CaseInsensitive(vec![pattern]));
+    let content_exclude = None;
 
-    if args.pattern.is_none() && args.exclude.is_none() {
-        Args::command().print_help()?;
-        return Ok(());
+    let file_filter = if is_stdin {
+        FileNameFilter::None
+    } else {
+        FileNameFilter::CaseInsensitive(vec!["".to_string()])
+    };
+
+    let show_line_number: bool = !is_stdin;
+
+    Options {
+        recurse: true,
+        root_dir: PathBuf::from("."),
+        content_filters,
+        content_exclude,
+        file_filter,
+        file_list: None,
+        show_top_lines: 0,
+        show_line_number,
+        raw_output: false,
+        debug_output: false,
     }
+}
 
+fn main() -> Result<()> {
     let is_stdin = !atty::is(Stream::Stdin);
-    let options = args_to_option(is_stdin, args);
 
+    let mut raw_args: Vec<String> = std::env::args().skip(1).collect();
+
+    let options: Options = if raw_args.len() == 1 {
+        // binary name + 1 argument
+        let pattern: String = raw_args.remove(0);
+        option_for_single_arg(pattern, is_stdin)
+    } else {
+        let args = Args::parse();
+
+        if args.pattern.is_none() && args.exclude.is_none() {
+            Args::command().print_help()?;
+            return Ok(());
+        }
+
+        args_to_option(is_stdin, args)
+    };
+    
     if is_stdin {
         run_stdin(&options).expect("Error reading from stdin");
     } else {

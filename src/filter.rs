@@ -27,7 +27,7 @@ fn colorize_filter(filters: &[String]) -> Vec<String> {
     colored
 }
 
-pub fn filter_stream<R>(reader: BufReader<R>, content_filters: &Option<ContentFilter>, content_exclude: &Option<ContentFilter>, prefix: Option<&String>, show_top_lines: usize, raw_output: bool) -> anyhow::Result<()>
+pub fn filter_stream<R>(reader: BufReader<R>, content_filters: &Option<ContentFilter>, content_exclude: &Option<ContentFilter>, prefix: Option<&String>, show_top_lines: usize, show_line_numbers: bool, raw_output: bool) -> anyhow::Result<()>
 where R: std::io::Read {
     let content_filters = match content_filters {
         Some(ContentFilter::CaseSensitive(filters)) => Some(ContentFilter::CaseSensitive(filters.clone())),
@@ -75,8 +75,12 @@ where R: std::io::Read {
                             }
                         }
 
-                        let line_num = format!("{}", num);
-                        println!("{:>4}: {}", line_num.blue(), colorize(&line, filters, colored));
+                        if show_line_numbers {
+                            let line_num = format!("{}", num);
+                            println!("{:>4}: {}", line_num.blue(), colorize(&line, filters, colored));
+                        } else {
+                            println!("{}", colorize(&line, filters, colored));
+                        }
                         break;
                     }
                 }

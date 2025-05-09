@@ -5,6 +5,12 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 #[clap(
     after_help = r##"Examples:
+# Special usage: If only one positional argument is provided, recursively searches for the provided argument in all files or stdin, case insensitive.
+# To search in all files:
+sgrep armaria
+# To filter stdin
+cat my-file | sgrep armaria
+
 # Displays lines containing "pub struct" string in all .rs files in the local directory
 sgrep -p "pub struct" *.rs
 
