@@ -3,10 +3,11 @@ mod filter;
 mod cmd_line;
 
 use std::env;
+use std::env::args;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use atty::Stream;
 use clap::{CommandFactory, Parser};
@@ -138,10 +139,19 @@ fn main() -> Result<()> {
     let is_stdin = !atty::is(Stream::Stdin);
 
     let mut raw_args: Vec<String> = std::env::args().skip(1).collect();
+    let simpler: bool = if raw_args.len() == 1 {
+        let pattern = raw_args.get(0).unwrap();
+        if pattern.starts_with('-') {
+            false
+        } else {
+            true
+        }
+    } else {
+        false
+    };
 
-    let options: Options = if raw_args.len() == 1 {
-        // binary name + 1 argument
-        let pattern: String = raw_args.remove(0);
+    let options: Options = if simpler {
+        let pattern = raw_args.remove(0);
         option_for_single_arg(pattern, is_stdin)
     } else {
         let args = Args::parse();
@@ -153,7 +163,7 @@ fn main() -> Result<()> {
 
         args_to_option(is_stdin, args)
     };
-    
+
     if is_stdin {
         run_stdin(&options).expect("Error reading from stdin");
     } else {

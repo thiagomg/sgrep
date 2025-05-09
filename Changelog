@@ -1,3 +1,6 @@
+1.0.9
+* BUGFIX: argument being treated as pattern
+
 1.0.8
 * Simple usage added, with no arguments, default to -r -i
 
