@@ -3,11 +3,10 @@ mod filter;
 mod cmd_line;
 
 use std::env;
-use std::env::args;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::PathBuf;
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 
 use atty::Stream;
 use clap::{CommandFactory, Parser};
