@@ -1,3 +1,6 @@
+1.0.8
+* Simple usage added, with no arguments, default to -r -i
+
 1.0.6
 * --exclude: exclude lines with this pattern
 
